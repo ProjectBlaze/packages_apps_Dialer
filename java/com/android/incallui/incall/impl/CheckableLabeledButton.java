@@ -134,7 +134,8 @@ public class CheckableLabeledButton extends LinearLayout implements Checkable {
     } else{
       labelView.setTextColor(Color.WHITE);
     }
-    labelView.setSingleLine();
+    labelView.setSingleLine(false);
+    labelView.setMaxLines(2);
     labelView.setMaxEms(9);
     labelView.setEllipsize(TruncateAt.END);
     labelView.setGravity(Gravity.CENTER);
