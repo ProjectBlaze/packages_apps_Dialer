@@ -21,7 +21,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.graphics.Bitmap;
@@ -72,6 +73,7 @@ import com.android.incallui.incall.impl.ButtonController.CallRecordButtonControl
 import com.android.incallui.incall.impl.ButtonController.SpeakerButtonController;
 import com.android.incallui.incall.impl.ButtonController.UpgradeToRttButtonController;
 import com.android.incallui.incall.impl.InCallButtonGridFragment.OnButtonGridCreatedListener;
+import com.android.incallui.incall.protocol.ContactPhotoType;
 import com.android.incallui.incall.protocol.InCallButtonIds;
 import com.android.incallui.incall.protocol.InCallButtonIdsExtension;
 import com.android.incallui.incall.protocol.InCallButtonUi;
@@ -84,6 +86,7 @@ import com.android.incallui.incall.protocol.PrimaryCallState;
 import com.android.incallui.incall.protocol.PrimaryCallState.ButtonState;
 import com.android.incallui.incall.protocol.PrimaryInfo;
 import com.android.incallui.incall.protocol.SecondaryInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 import android.view.WindowManager;
@@ -111,8 +114,11 @@ public class InCallFragment extends Fragment
   private int voiceNetworkType;
   private int phoneType;
   private boolean stateRestored;
+  private View topPhoneContainer;
 
   private static final int REQUEST_CODE_CALL_RECORD_PERMISSION = 1000;
+  private boolean isFullscreenPhoto = false;
+
   // Add animation to educate users. If a call has enriched calling attachments then we'll
   // initially show the attachment page. After a delay seconds we'll animate to the button grid.
   private final Handler handler = new Handler();
@@ -173,6 +179,21 @@ public class InCallFragment extends Fragment
       @Nullable Bundle bundle) {
     LogUtil.i("InCallFragment.onCreateView", null);
     getActivity().setTheme(R.style.Theme_InCallScreen);
+
+    SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    isFullscreenPhoto = mPrefs.getBoolean("fullscreen_caller_photo", false);
+
+    int tempRes = R.layout.frag_incall_voice;
+    if(isFullscreenPhoto){
+      tempRes = R.layout.frag_incall_voice_fullscreen_photo;
+    }
+    final int res = tempRes;
+    final View view = StrictModeUtils.bypass(() -> layoutInflater.inflate(res, viewGroup, false));
+
+    if(isFullscreenPhoto){
+      topPhoneContainer = view.findViewById(R.id.incall_contactgrid_container);
+    }
+
         Window window = getActivity().getWindow();
 	window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         window.setStatusBarColor(Color.TRANSPARENT);
@@ -181,10 +202,6 @@ public class InCallFragment extends Fragment
         window.setDecorFitsSystemWindows(false);
         window.getDecorView().setSystemUiVisibility(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
-    // Bypass to avoid StrictModeResourceMismatchViolation
-    final View view =
-        StrictModeUtils.bypass(
-            () -> layoutInflater.inflate(R.layout.frag_incall_voice, viewGroup, false));
    this.view  = view;
     avatarImageView = (ImageView) view.findViewById(R.id.contactgrid_avatar);
     contactGridManager =
@@ -308,6 +325,15 @@ public class InCallFragment extends Fragment
     LogUtil.i("InCallFragment.setPrimary", primaryInfo.toString());
     setAdapterMedia(primaryInfo.multimediaData(), primaryInfo.showInCallButtonGrid());
     contactGridManager.setPrimary(primaryInfo);
+
+    if(topPhoneContainer != null){
+      boolean hasPhoto = primaryInfo.photo() != null && primaryInfo.photoType() == ContactPhotoType.CONTACT;
+      if(hasPhoto){
+        topPhoneContainer.setBackgroundColor(0x55000000);
+      } else {
+        topPhoneContainer.setBackgroundColor(Color.TRANSPARENT);
+      }
+    }
 
     if (primaryInfo.shouldShowLocation()) {
       // Hide the avatar to make room for location

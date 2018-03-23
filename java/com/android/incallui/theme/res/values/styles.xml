@@ -29,8 +29,9 @@
     <item name="dialpad_style">@style/InCallDialpad</item>
     <item name="android:windowAnimationStyle">@null</item>
 
-   <item name="android:windowBackground">@drawable/incall_background_gradient</item>
+    <item name="android:windowBackground">@drawable/incall_background_gradient</item>
     <item name="android:windowShowWallpaper">true</item>
+    <item name="android:windowTranslucentStatus">true</item>
   </style>
 
   <style name="Theme.InCallScreen" parent="@style/Dialer.Dark.ThemeBase.NoActionBar">

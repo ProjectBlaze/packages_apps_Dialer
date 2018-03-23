@@ -17,6 +17,8 @@
 package com.android.incallui.contactgrid;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.graphics.drawable.Animatable;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -52,6 +54,7 @@ import com.android.dialer.glidephotomanager.PhotoInfo;
 import com.android.dialer.lettertile.LetterTileDrawable;
 import com.android.dialer.util.DrawableConverter;
 import com.android.dialer.widget.BidiTextView;
+import com.android.incallui.autoresizetext.CustomAutoResizeTextView;
 import com.android.incallui.incall.protocol.ContactPhotoType;
 import com.android.incallui.incall.protocol.PrimaryCallState;
 import com.android.incallui.incall.protocol.PrimaryInfo;
@@ -111,6 +114,8 @@ public class ContactGridManager {
   private boolean isInMultiWindowMode;
   View view;
 
+  private boolean isFullscreenPhoto = false;
+
   public ContactGridManager(
       View view, @Nullable ImageView avatarImageView, int avatarSize, boolean showAnonymousAvatar) {
     context = view.getContext();
@@ -138,6 +143,9 @@ public class ContactGridManager {
 
     deviceNumberTextView = view.findViewById(R.id.contactgrid_device_number_text);
     deviceNumberDivider = view.findViewById(R.id.contactgrid_location_divider);
+
+    SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+    isFullscreenPhoto = mPrefs.getBoolean("fullscreen_caller_photo", false);
   }
 
   public void show() {
@@ -316,10 +324,14 @@ public class ContactGridManager {
 	}
       // Set direction of the name field
       int nameDirection = View.TEXT_DIRECTION_INHERIT;
+      boolean singleLine = true;
       if (primaryInfo.nameIsNumber()) {
         nameDirection = View.TEXT_DIRECTION_LTR;
+	singleLine = false;
       }
       contactNameTextView.setTextDirection(nameDirection);
+      contactNameTextView.setSingleLine(singleLine);
+      ((CustomAutoResizeTextView)contactNameTextView).setMaxLines(2);
     }
 
     if (avatarImageView != null) {
@@ -374,11 +386,34 @@ public class ContactGridManager {
     boolean hasPhoto =
         primaryInfo.photo() != null && primaryInfo.photoType() == ContactPhotoType.CONTACT;
     if (hasPhoto) {
-        avatarImageView.setImageDrawable(primaryInfo.photo());
+          if(isFullscreenPhoto){
+            avatarImageView.setImageDrawable(primaryInfo.photo());
+          } else {
+            avatarImageView.setBackground(
+                DrawableConverter.getRoundedDrawable(
+                    context, primaryInfo.photo(), avatarSize, avatarSize));
+          }
     } else {
-	Drawable defaultImg =  context.getDrawable(R.drawable.nopicbg);
-        avatarImageView.setImageDrawable(defaultImg);
+      // Contact has a photo, don't render a letter tile.
+    if(!isFullscreenPhoto) {
+      letterTile.setCanonicalDialerLetterTileDetails(
+          primaryInfo.name(),
+          primaryInfo.contactInfoLookupKey(),
+          LetterTileDrawable.SHAPE_CIRCLE,
+          LetterTileDrawable.getContactTypeFromPrimitives(
+              primaryCallState.isVoiceMailNumber(),
+              primaryInfo.isSpam(),
+              primaryCallState.isBusinessNumber(),
+              primaryInfo.numberPresentation(),
+              primaryCallState.isConference()));
+      // By invalidating the avatarImageView we force a redraw of the letter tile.
+      // This is required to properly display the updated letter tile iconography based on the
+      // contact type, because the background drawable reference cached in the view, and the
+      // view is not aware of the mutations made to the background.
+      avatarImageView.invalidate();
+      avatarImageView.setBackground(letterTile);
     }
+   }
   }
   /**
    * Updates row 2. For example:
