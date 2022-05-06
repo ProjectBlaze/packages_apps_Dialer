@@ -66,7 +66,6 @@ public class EmptyContentView extends LinearLayout implements View.OnClickListen
     descriptionView = (TextView) findViewById(R.id.empty_list_view_message);
     actionView = (TextView) findViewById(R.id.empty_list_view_action);
     actionView.setOnClickListener(this);
-
   }
 
   public void setDescription(int resourceId) {
