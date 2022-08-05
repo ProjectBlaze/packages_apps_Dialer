@@ -30,9 +30,10 @@
 
     <ImageView
         android:id="@+id/bottom_nav_item_image"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginTop="6dp"/>
 
     <TextView
         android:id="@+id/notification_badge"
@@ -63,9 +64,10 @@
       android:id="@+id/bottom_nav_item_text"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_marginBottom="6dp"
       android:gravity="center_horizontal"
       android:textSize="15sp"
-      style="@style/Dialer.TextAppearance.Primary"/>
+      style="@style/Dialer.TextAppearance.OVERLINE"/> 
 
   </FrameLayout>
 
