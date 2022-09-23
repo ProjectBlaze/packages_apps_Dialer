@@ -15,7 +15,7 @@
 -->
 
 <resources>
-  <color name="nav_item">@*android:color/system_accent1_400</color>
+  <color name="nav_item">@*android:color/system_neutral1_300</color>
   <color name="nav_item_selected">@*android:color/system_accent1_400</color>
   <color name="primary_bg">@*android:color/primary_device_default_dark</color>
   <color name="secondary_bg">@*android:color/surface_variant_dark</color>
