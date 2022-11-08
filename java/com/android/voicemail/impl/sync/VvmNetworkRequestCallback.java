@@ -128,13 +128,11 @@ public abstract class VvmNetworkRequestCallback extends ConnectivityManager.Netw
     resultReceived = true;
   }
 
-  // Begin, Moto changes
   private static final int DEFAULT_IPV4_WAIT_DELAY_MS = 500; // in milliseconds
   private final ConditionVariable mWaitV4Cv = new ConditionVariable();
   @Override
   @CallSuper
   public void onLinkPropertiesChanged(Network network, LinkProperties lp) {
-    super.onLinkPropertiesChanged(network, lp);
     boolean hasIPv4 = (lp != null) &&
             (lp.isReachable(InetAddresses.parseNumericAddress("8.8.8.8")));
     if(hasIPv4) {
@@ -145,7 +143,6 @@ public abstract class VvmNetworkRequestCallback extends ConnectivityManager.Netw
     VvmLog.w(TAG, "Waiting for IPV4 address...");
     mWaitV4Cv.block(DEFAULT_IPV4_WAIT_DELAY_MS);
   }
-  // End, Moto changes
 
   @CallSuper
   public void onUnavailable() {
