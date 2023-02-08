@@ -1213,7 +1213,7 @@ public class AnswerFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(
-        LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
+      LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
       SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
       boolean isFullscreenPhoto = mPrefs.getBoolean("fullscreen_caller_photo", false);
 
@@ -1221,7 +1221,7 @@ public class AnswerFragment extends Fragment
       if(isFullscreenPhoto){
         res = R.layout.fragment_avatar_fullscreen_photo;
       }
-      return layoutInflater.inflate(res, viewGroup, false);
+      View v = layoutInflater.inflate(res, viewGroup, false);
         Window window = getActivity().getWindow();
         window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         window.setStatusBarColor(Color.TRANSPARENT);

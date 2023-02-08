@@ -394,24 +394,9 @@ public class ContactGridManager {
                     context, primaryInfo.photo(), avatarSize, avatarSize));
           }
     } else {
-      // Contact has a photo, don't render a letter tile.
     if(!isFullscreenPhoto) {
-      letterTile.setCanonicalDialerLetterTileDetails(
-          primaryInfo.name(),
-          primaryInfo.contactInfoLookupKey(),
-          LetterTileDrawable.SHAPE_CIRCLE,
-          LetterTileDrawable.getContactTypeFromPrimitives(
-              primaryCallState.isVoiceMailNumber(),
-              primaryInfo.isSpam(),
-              primaryCallState.isBusinessNumber(),
-              primaryInfo.numberPresentation(),
-              primaryCallState.isConference()));
-      // By invalidating the avatarImageView we force a redraw of the letter tile.
-      // This is required to properly display the updated letter tile iconography based on the
-      // contact type, because the background drawable reference cached in the view, and the
-      // view is not aware of the mutations made to the background.
-      avatarImageView.invalidate();
-      avatarImageView.setBackground(letterTile);
+	Drawable defaultImg =  context.getDrawable(R.drawable.nopicbg);
+        avatarImageView.setImageDrawable(defaultImg);
     }
    }
   }
